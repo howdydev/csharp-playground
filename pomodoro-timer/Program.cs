@@ -19,14 +19,14 @@ catch (OperationCanceledException)
     Console.Clear();
     var now = DateTime.UtcNow;
     var diff = now - started;
-    Console.WriteLine($"Pomodoro timer cancelled after {diff:mm\\:ss}");
+    Console.WriteLine($"Pomodoro timer cancelled after {FormatTime(diff)}");
 }
 finally
 {
     Console.CursorVisible = true;
 }
 
-async Task RunTimerAsync(TimeSpan duration, CancellationToken token)
+static async Task RunTimerAsync(TimeSpan duration, CancellationToken token)
 {
     var endTime = DateTime.UtcNow + duration;
 
@@ -35,6 +35,7 @@ async Task RunTimerAsync(TimeSpan duration, CancellationToken token)
         await Task.Delay(1000, token);
     }
 
+    // one final draw to show the bar as complete
     Draw(TimeSpan.Zero, duration);
     Console.Write("\a");
 }
@@ -53,8 +54,11 @@ static void Draw(TimeSpan remaining, TimeSpan total)
         bar[i] = cell;
     }
 
-    var timeRemaining = remaining.ToString(@"mm\:ss");
     Console.WriteLine($"Pomodoro timer running ({total:mm}m)");
-    Console.WriteLine($"{timeRemaining} remaining");
+    Console.WriteLine($"{FormatTime(remaining)} remaining");
     Console.Write($"[{string.Join("", bar)}]");
+}
+
+static string FormatTime(TimeSpan time) {
+    return $"{(int)time.TotalMinutes}m {time.Seconds:D2}s";
 }
