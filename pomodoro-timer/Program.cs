@@ -1,6 +1,6 @@
 ﻿using var cts = new CancellationTokenSource();
 
-var timer = new PomodoroTimer(cts.Token, TimeSpan.FromMinutes(25));
+var timer = new PomodoroTimer(cts.Token, TimeSpan.FromMinutes(0.05));
 
 Console.CancelKeyPress += (sender, e) =>
 {
@@ -23,4 +23,6 @@ finally
 {
     Console.CursorVisible = true;
     PomodoroSession session = timer.EndTimer();
+    SessionLogger logger = new();
+    logger.Log(session);
 }
