@@ -51,7 +51,7 @@ public class PomodoroTimer(CancellationToken token, TimeSpan duration)
         return session;
     }
 
-    static string FormatTime(TimeSpan time)
+    public static string FormatTime(TimeSpan time)
     {
         return $"{(int)time.TotalMinutes}m {time.Seconds:D2}s";
     }

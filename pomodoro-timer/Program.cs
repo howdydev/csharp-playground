@@ -1,4 +1,10 @@
-﻿using var cts = new CancellationTokenSource();
+﻿if (args.Contains("--history"))
+{
+    new SessionLogger().Print();
+    return;
+}
+
+using var cts = new CancellationTokenSource();
 
 var timer = new PomodoroTimer(cts.Token, TimeSpan.FromMinutes(0.05));
 
@@ -7,7 +13,6 @@ Console.CancelKeyPress += (sender, e) =>
     cts.Cancel();
     e.Cancel = true;
 };
-
 
 try
 {
