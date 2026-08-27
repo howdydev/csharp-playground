@@ -21,14 +21,9 @@ public class SessionLogger
         File.WriteAllText(path, updatedSessions);
     }
 
-    public void Print()
+    public void Print(bool today)
     {
-        List<PomodoroSession> sessions = GetSessions();
-        if (sessions.Count == 0)
-        {
-            Console.WriteLine("You have no sessions recorded.");
-            return;
-        }
+        List<PomodoroSession> loggedSessions = GetSessions();
 
         var table = new Table()
             .AddColumn("Started")
@@ -36,8 +31,21 @@ public class SessionLogger
             .AddColumn("Duration")
             .AddColumn("Completed");
 
+        var todaysSessions = loggedSessions.Where(s => s.Started.ToLocalTime().Date == DateTime.Today);
+        var sessions = today ? todaysSessions : loggedSessions;
+
+        if (!sessions.Any())
+        {
+            Console.WriteLine("You have no sessions recorded.");
+            return;
+        }
+
         foreach (var session in sessions)
             table.AddRow(session.Started.ToString(), session.Ended.ToString(), PomodoroTimer.FormatTime(session.Duration), session.Completed ? "[green]Yes[/]" : "[red]No[/]");
+
+        var durationInSeconds = sessions.Sum(s  => s.Duration.TotalSeconds);
+        TimeSpan t = TimeSpan.FromSeconds(durationInSeconds);
+        AnsiConsole.WriteLine($"Total duration over sessions: {t.Hours}h {t.Minutes}m {t.Seconds:D2}s");
 
         AnsiConsole.Write(table);
     }

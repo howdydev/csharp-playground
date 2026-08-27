@@ -1,6 +1,7 @@
-﻿if (args.Contains("--history"))
+﻿if (args.Contains("--history") || args.Contains("-h"))
 {
-    new SessionLogger().Print();
+    bool today = args.Contains("--today") || args.Contains("-t");
+    new SessionLogger().Print(today);
     return;
 }
 
