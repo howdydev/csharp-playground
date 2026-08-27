@@ -7,7 +7,7 @@
 
 using var cts = new CancellationTokenSource();
 
-var timer = new PomodoroTimer(cts.Token, TimeSpan.FromMinutes(0.05));
+var timer = new PomodoroTimer(cts.Token, TimeSpan.FromMinutes(25));
 
 Console.CancelKeyPress += (sender, e) =>
 {
