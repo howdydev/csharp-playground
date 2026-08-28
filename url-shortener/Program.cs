@@ -5,10 +5,15 @@ var app = builder.Build();
 
 app.MapGet("/", () => "Hello World!");
 
-app.MapPost("/shorten", (ShortenRequest request, LinkStore store) =>
+app.MapPost("/shorten", (ShortenRequest request, LinkStore store, HttpContext ctx) =>
 {
-    var generatedCode = store.Add(request.Url);
-    return $"Generated code: ${generatedCode}";
+    var generation = store.Add(request.Url);
+    return generation.Status switch
+    {
+        AddStatusCode.Success => Results.Ok($"{ctx.Request.Scheme}://{ctx.Request.Host}/{generation.Code}"),
+        AddStatusCode.InvalidUrl => Results.BadRequest("Invalid url supplied."),
+        _ => Results.BadRequest("Unknown request"),
+    };
 });
 app.MapGet("/{code}", (string code, LinkStore store) =>
 {
