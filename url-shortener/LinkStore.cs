@@ -9,36 +9,29 @@ public enum AddStatusCode
     InvalidUrl,
 }
 
-public class LinkStore
+public class LinkStore(LinkContext db)
 {
-    private Dictionary<string, GeneratedUrl> generatedUrls = new();
-
     public AddResult Add(string url)
     {
-        if (!ValidateUrl(url, out var _uriRequest)) 
+        if (!ValidateUrl(url, out _))
             return new AddResult(string.Empty, AddStatusCode.InvalidUrl);
 
-        var existingEntry = generatedUrls.FirstOrDefault(entry => entry.Value.BaseUrl == url);
-
-        if (!existingEntry.Equals(default(KeyValuePair<string, GeneratedUrl>)))
-        {
-            return new AddResult(existingEntry.Key, AddStatusCode.Success);
-        }
-
         var code = GenerateCode();
-        GeneratedUrl generatedUrl = new(url, DateTime.UtcNow);
-        generatedUrls.Add(code, generatedUrl);
+        Link generatedUrl = new()
+        {
+            BaseUrl = url,
+            Code = code,
+            CreatedAt = DateTime.UtcNow,
+        };
+        db.Links.Add(generatedUrl);
+        db.SaveChanges();
         return new AddResult(code, AddStatusCode.Success);
     }
 
-    public GeneratedUrl? Get(string url)
+    public Link? Get(string code)
     {
-        if (generatedUrls.TryGetValue(url, out var existing))
-        {
-            return existing;
-        }
-
-        return null;
+        var existing = db.Links.FirstOrDefault(l => l.Code == code);
+        return existing;
     }
 
     private string GenerateCode()
@@ -53,7 +46,7 @@ public class LinkStore
         }
 
         var code = newCode.ToString();
-        if (generatedUrls.ContainsKey(code)) return GenerateCode();
+        if (db.Links.Any(l => l.Code == code)) return GenerateCode();
 
         return code;
     }

@@ -1,5 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddSingleton<LinkStore>();
+
+var folder = Environment.SpecialFolder.LocalApplicationData;
+var path = Environment.GetFolderPath(folder);
+var dbPath = Path.Join(path, "links.db");
+builder.Services.AddDbContext<LinkContext>(options => options.UseSqlite($"Data Source={dbPath}"));
+builder.Services.AddScoped<LinkStore>();
 
 var app = builder.Build();
 
