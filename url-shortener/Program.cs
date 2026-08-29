@@ -24,13 +24,15 @@ app.MapPost("/shorten", (ShortenRequest request, LinkStore store, HttpContext ct
 });
 app.MapGet("/{code}", (string code, LinkStore store) =>
 {
-    var existingUrl = store.Get(code);
-    if (existingUrl is null)
-    {
-        return Results.NotFound();
-    }
-    return Results.Redirect(existingUrl.BaseUrl);
+    var link = store.RecordClick(code);
+    if (link is null) return Results.NotFound();
+    return Results.Redirect(link.BaseUrl);
 });
-app.MapGet("/api/{code}", (string code) => $"Not yet implemented. Code: {code}");
+app.MapGet("/api/{code}", (string code, LinkStore store) =>
+{
+    var link = store.Get(code);
+    if (link is null) return Results.NotFound();
+    return Results.Ok(LinkResponse.From(link));
+});
 
 app.Run();

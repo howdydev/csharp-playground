@@ -14,11 +14,13 @@ public class LinkContext : DbContext
     }
 }
 
+
 [Index(nameof(Code), IsUnique = true)]
 public class Link
 {
     public int LinkId { get; set; }
     public required string BaseUrl { get; set; }
     public required string Code { get; set; }
+    public int ClickCount { get; set; }
     public DateTime CreatedAt { get; set; }
 }

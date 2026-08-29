@@ -2,6 +2,13 @@ using System.Text;
 
 public record GeneratedUrl(string BaseUrl, DateTime GeneratedAt);
 public record AddResult(string Code, AddStatusCode Status);
+public record LinkResponse(string BaseUrl, string Code, int ClickCount, DateTime CreatedAt)
+{
+    public static LinkResponse From(Link link)
+    {
+        return new(link.BaseUrl, link.Code, link.ClickCount, link.CreatedAt);
+    }
+}
 
 public enum AddStatusCode
 {
@@ -28,10 +35,21 @@ public class LinkStore(LinkContext db)
         return new AddResult(code, AddStatusCode.Success);
     }
 
+    public Link? RecordClick(string code)
+    {
+        var link = Get(code);
+        if (link is not null)
+        {
+            link.ClickCount++;
+            db.SaveChanges();
+        }
+        return link;
+    }
+
     public Link? Get(string code)
     {
-        var existing = db.Links.FirstOrDefault(l => l.Code == code);
-        return existing;
+        var link = db.Links.FirstOrDefault(l => l.Code == code);
+        return link;
     }
 
     private string GenerateCode()
